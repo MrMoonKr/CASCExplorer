@@ -136,7 +136,7 @@
     <Compile Include="SelectBuildForm.Designer.cs">
       <DependentUpon>SelectBuildForm.cs</DependentUpon>
     </Compile>
-    <Compile Include="Settings.cs" />
+    <None Include="Settings.cs" />
     <Compile Include="WDB2Reader.cs" />
     <Compile Include="WDB3Reader.cs" />
     <Compile Include="WDB5Reader.cs" />
