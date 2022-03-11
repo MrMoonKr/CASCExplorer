@@ -42,11 +42,6 @@
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.statusLabel = new System.Windows.Forms.ToolStripStatusLabel();
             this.statusProgress = new System.Windows.Forms.ToolStripProgressBar();
-            this.toolStrip1 = new System.Windows.Forms.ToolStrip();
-            this.filterToolStripLabel = new System.Windows.Forms.ToolStripLabel();
-            this.filterToolStripTextBox = new System.Windows.Forms.ToolStripTextBox();
-            this.toolStrip2 = new System.Windows.Forms.ToolStrip();
-            this.openStorageToolStripButton = new System.Windows.Forms.ToolStripButton();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.fileToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.openStorageToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -74,6 +69,11 @@
             this.addFileDataIDToSoundFilesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.toolStrip2 = new System.Windows.Forms.ToolStrip();
+            this.openStorageToolStripButton = new System.Windows.Forms.ToolStripButton();
+            this.toolStrip1 = new System.Windows.Forms.ToolStrip();
+            this.filterToolStripLabel = new System.Windows.Forms.ToolStripLabel();
+            this.filterToolStripTextBox = new System.Windows.Forms.ToolStripTextBox();
             this.storageFolderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog();
             this.fileList = new CASCExplorer.NoFlickerListView();
             this.columnHeader1 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
@@ -81,6 +81,7 @@
             this.columnHeader3 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader5 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.columnHeader4 = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.statusInfo = new System.Windows.Forms.ToolStripStatusLabel();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -94,9 +95,9 @@
             this.toolStripContainer1.TopToolStripPanel.SuspendLayout();
             this.toolStripContainer1.SuspendLayout();
             this.statusStrip1.SuspendLayout();
-            this.toolStrip1.SuspendLayout();
-            this.toolStrip2.SuspendLayout();
             this.menuStrip1.SuspendLayout();
+            this.toolStrip2.SuspendLayout();
+            this.toolStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
             // splitContainer1
@@ -224,7 +225,8 @@
             this.statusStrip1.ImageScalingSize = new System.Drawing.Size(24, 24);
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.statusLabel,
-            this.statusProgress});
+            this.statusProgress,
+            this.statusInfo});
             this.statusStrip1.Location = new System.Drawing.Point(0, 0);
             this.statusStrip1.Name = "statusStrip1";
             this.statusStrip1.Size = new System.Drawing.Size(1402, 32);
@@ -241,53 +243,6 @@
             this.statusProgress.Name = "statusProgress";
             this.statusProgress.Size = new System.Drawing.Size(100, 24);
             this.statusProgress.Visible = false;
-            // 
-            // toolStrip1
-            // 
-            this.toolStrip1.Dock = System.Windows.Forms.DockStyle.None;
-            this.toolStrip1.ImageScalingSize = new System.Drawing.Size(24, 24);
-            this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.filterToolStripLabel,
-            this.filterToolStripTextBox});
-            this.toolStrip1.Location = new System.Drawing.Point(61, 33);
-            this.toolStrip1.Name = "toolStrip1";
-            this.toolStrip1.Size = new System.Drawing.Size(249, 31);
-            this.toolStrip1.TabIndex = 1;
-            // 
-            // filterToolStripLabel
-            // 
-            this.filterToolStripLabel.Name = "filterToolStripLabel";
-            this.filterToolStripLabel.Size = new System.Drawing.Size(102, 26);
-            this.filterToolStripLabel.Text = "Files mask: ";
-            // 
-            // filterToolStripTextBox
-            // 
-            this.filterToolStripTextBox.Font = new System.Drawing.Font("Segoe UI", 9F);
-            this.filterToolStripTextBox.Name = "filterToolStripTextBox";
-            this.filterToolStripTextBox.Size = new System.Drawing.Size(125, 31);
-            this.filterToolStripTextBox.Text = "*";
-            this.filterToolStripTextBox.TextChanged += new System.EventHandler(this.filterToolStripTextBox_TextChanged);
-            // 
-            // toolStrip2
-            // 
-            this.toolStrip2.Dock = System.Windows.Forms.DockStyle.None;
-            this.toolStrip2.ImageScalingSize = new System.Drawing.Size(24, 24);
-            this.toolStrip2.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.openStorageToolStripButton});
-            this.toolStrip2.Location = new System.Drawing.Point(9, 33);
-            this.toolStrip2.Name = "toolStrip2";
-            this.toolStrip2.Size = new System.Drawing.Size(52, 33);
-            this.toolStrip2.TabIndex = 2;
-            // 
-            // openStorageToolStripButton
-            // 
-            this.openStorageToolStripButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
-            this.openStorageToolStripButton.Image = ((System.Drawing.Image)(resources.GetObject("openStorageToolStripButton.Image")));
-            this.openStorageToolStripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
-            this.openStorageToolStripButton.Name = "openStorageToolStripButton";
-            this.openStorageToolStripButton.Size = new System.Drawing.Size(34, 28);
-            this.openStorageToolStripButton.Text = "&Open Storage";
-            this.openStorageToolStripButton.Click += new System.EventHandler(this.openStorageToolStripButton_Click);
             // 
             // menuStrip1
             // 
@@ -530,6 +485,53 @@
             this.aboutToolStripMenuItem.Text = "About...";
             this.aboutToolStripMenuItem.Click += new System.EventHandler(this.aboutToolStripMenuItem_Click);
             // 
+            // toolStrip2
+            // 
+            this.toolStrip2.Dock = System.Windows.Forms.DockStyle.None;
+            this.toolStrip2.ImageScalingSize = new System.Drawing.Size(24, 24);
+            this.toolStrip2.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.openStorageToolStripButton});
+            this.toolStrip2.Location = new System.Drawing.Point(13, 33);
+            this.toolStrip2.Name = "toolStrip2";
+            this.toolStrip2.Size = new System.Drawing.Size(52, 33);
+            this.toolStrip2.TabIndex = 2;
+            // 
+            // openStorageToolStripButton
+            // 
+            this.openStorageToolStripButton.DisplayStyle = System.Windows.Forms.ToolStripItemDisplayStyle.Image;
+            this.openStorageToolStripButton.Image = ((System.Drawing.Image)(resources.GetObject("openStorageToolStripButton.Image")));
+            this.openStorageToolStripButton.ImageTransparentColor = System.Drawing.Color.Magenta;
+            this.openStorageToolStripButton.Name = "openStorageToolStripButton";
+            this.openStorageToolStripButton.Size = new System.Drawing.Size(34, 28);
+            this.openStorageToolStripButton.Text = "&Open Storage";
+            this.openStorageToolStripButton.Click += new System.EventHandler(this.openStorageToolStripButton_Click);
+            // 
+            // toolStrip1
+            // 
+            this.toolStrip1.Dock = System.Windows.Forms.DockStyle.None;
+            this.toolStrip1.ImageScalingSize = new System.Drawing.Size(24, 24);
+            this.toolStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.filterToolStripLabel,
+            this.filterToolStripTextBox});
+            this.toolStrip1.Location = new System.Drawing.Point(65, 33);
+            this.toolStrip1.Name = "toolStrip1";
+            this.toolStrip1.Size = new System.Drawing.Size(249, 31);
+            this.toolStrip1.TabIndex = 1;
+            // 
+            // filterToolStripLabel
+            // 
+            this.filterToolStripLabel.Name = "filterToolStripLabel";
+            this.filterToolStripLabel.Size = new System.Drawing.Size(102, 26);
+            this.filterToolStripLabel.Text = "Files mask: ";
+            // 
+            // filterToolStripTextBox
+            // 
+            this.filterToolStripTextBox.Font = new System.Drawing.Font("Segoe UI", 9F);
+            this.filterToolStripTextBox.Name = "filterToolStripTextBox";
+            this.filterToolStripTextBox.Size = new System.Drawing.Size(125, 31);
+            this.filterToolStripTextBox.Text = "*";
+            this.filterToolStripTextBox.TextChanged += new System.EventHandler(this.filterToolStripTextBox_TextChanged);
+            // 
             // fileList
             // 
             this.fileList.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
@@ -585,6 +587,12 @@
             this.columnHeader4.TextAlign = System.Windows.Forms.HorizontalAlignment.Right;
             this.columnHeader4.Width = 80;
             // 
+            // statusInfo
+            // 
+            this.statusInfo.Name = "statusInfo";
+            this.statusInfo.Size = new System.Drawing.Size(44, 25);
+            this.statusInfo.Text = "N/A";
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
@@ -613,12 +621,12 @@
             this.toolStripContainer1.PerformLayout();
             this.statusStrip1.ResumeLayout(false);
             this.statusStrip1.PerformLayout();
-            this.toolStrip1.ResumeLayout(false);
-            this.toolStrip1.PerformLayout();
-            this.toolStrip2.ResumeLayout(false);
-            this.toolStrip2.PerformLayout();
             this.menuStrip1.ResumeLayout(false);
             this.menuStrip1.PerformLayout();
+            this.toolStrip2.ResumeLayout(false);
+            this.toolStrip2.PerformLayout();
+            this.toolStrip1.ResumeLayout(false);
+            this.toolStrip1.PerformLayout();
             this.ResumeLayout(false);
 
         }
@@ -676,6 +684,7 @@
         private System.Windows.Forms.ToolStripMenuItem openListFileToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem analyzeSoundFilesToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem addFileDataIDToSoundFilesToolStripMenuItem;
+        private System.Windows.Forms.ToolStripStatusLabel statusInfo;
     }
 }
 

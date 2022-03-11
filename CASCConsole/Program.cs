@@ -1,6 +1,6 @@
-﻿using CASCConsole.Properties;
-using CASCLib;
+﻿using CASCLib;
 using System;
+using System.CommandLine;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
@@ -8,263 +8,55 @@ using System.Text.RegularExpressions;
 
 namespace CASCConsole
 {
+    enum ExtractMode
+    {
+        Pattern,
+        Listfile
+    }
+
     class Program
     {
         static readonly object ProgressLock = new object();
 
-        //class Hashes
-        //{
-        //    public string[] install;
-        //    public string[] encoding;
-        //}
-
         static void Main(string[] args)
         {
-            //HashSet<string> data = new HashSet<string>();
-            //HashSet<string> installs = new HashSet<string>();
+            var modeOption = new Option<ExtractMode>(new[] { "-m", "--mode" }, "Extraction mode") { IsRequired = true };
+            var modeParamOption = new Option<string>(new[] { "-e", "--eparam" }, "Extraction mode parameter (example: *.* or listfile.csv)") { IsRequired = true };
+            var destOption = new Option<string>(new[] { "-d", "--dest" }, "Destination folder path") { IsRequired = true };
+            var localeOption = new Option<LocaleFlags>(new[] { "-l", "--locale" }, "Product locale") { IsRequired = true };
+            var productOption = new Option<string>(new[] { "-p", "--product" }, "Product uid") { IsRequired = true };
+            var onlineOption = new Option<bool>(new[] { "-o", "--online" }, () => true, "Override archive");
+            var storagePathOption = new Option<string>(new[] { "-s", "--storage" }, () => "", "Local game storage folder");
+            var overrideArchiveOption = new Option<bool>(new[] { "-a", "--archive" }, () => false, "Override archive");
 
-            //using (StreamReader sr = new StreamReader("list.txt"))
-            //{
-            //    string line1;
+            var rootCommand = new RootCommand("CASCConsole") { modeOption, modeParamOption, destOption, localeOption, productOption, onlineOption, storagePathOption, overrideArchiveOption };
 
-            //    while((line1 = sr.ReadLine()) != null)
-            //    {
-            //        data.Add(line1.Substring(19, 32));
-
-            //        if (line1.Contains("install"))
-            //        {
-            //            installs.Add(line1.Substring(93, 32));
-            //        }
-            //    }
-            //}
-
-            ////foreach (var cfg in data)
-            ////{
-            ////    string url = string.Format("https://bnet.marlam.in/tpr/wow/config/{0}/{1}/{2}", cfg.Substring(0, 2), cfg.Substring(2, 2), cfg);
-
-            ////    var stream = CDNIndexHandler.OpenFileDirect(url);
-
-            ////    using (var fileStream = File.Create("builds\\" + cfg))
-            ////    {
-            ////        stream.CopyTo(fileStream);
-            ////    }
-            ////}
-
-            //Dictionary<string, Hashes> data2 = new Dictionary<string, Hashes>();
-
-            //foreach (var file in Directory.GetFiles("builds"))
-            //{
-            //    using(var sr = new StreamReader(file))
-            //    {
-            //        string line;
-
-            //        while ((line = sr.ReadLine()) != null)
-            //        {
-            //            if (string.IsNullOrWhiteSpace(line) || line.StartsWith("#")) // skip empty lines and comments
-            //                continue;
-
-            //            string[] tokens = line.Split(new char[] { '=' }, 2, StringSplitOptions.RemoveEmptyEntries);
-
-            //            if (tokens.Length != 2)
-            //                throw new Exception("KeyValueConfig: tokens.Length != 2");
-
-            //            var values = tokens[1].Trim().Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-            //            var valuesList = values.ToList();
-
-            //            if (!data2.ContainsKey(file))
-            //                data2[file] = new Hashes();
-
-            //            if (values[0] == "install")
-            //            {
-            //                data2[file].install = values;
-            //            }
-
-            //            if (values[0] == "encoding")
-            //            {
-            //                data2[file].encoding = values;
-            //            }
-
-            //            //sr.Data.Add(tokens[0].Trim(), valuesList);
-            //        }
-            //    }
-            //}
-
-            //Dictionary<string, string> realInstalls = new Dictionary<string, string>();
-
-            //foreach(var kv in data2)
-            //{
-            //    for(int i = 6; i < kv.Value.install.Length; i++)
-            //    {
-            //        if (installs.Contains(kv.Value.install[i]))
-            //        {
-            //            //Console.WriteLine("{0} {1}", kv.Value.install[i], kv.Value.encoding[i]);
-
-            //            realInstalls[kv.Value.install[i]] = kv.Value.encoding[i];
-            //        }
-            //    }
-            //}
-
-            //CASCConfig.ValidateData = false;
-
-            //int buildIndex = 0;
-
-            //foreach (var kvinstall in realInstalls)
-            //{
-            //    string url1 = string.Format("http://bnet.marlamin.com/tpr/wow/data/{0}/{1}/{2}", kvinstall.Key.Substring(0, 2), kvinstall.Key.Substring(2, 2), kvinstall.Key);
-
-            //    BLTEStream instFile = new BLTEStream(CDNIndexHandler.OpenFileDirect(url1), new MD5Hash());
-
-            //    InstallHandler install = new InstallHandler(new BinaryReader(instFile), null);
-
-            //    //foreach(var ent  in install.GetEntries().Where(e => e.Name.Contains("MacOS")))
-            //    //{
-            //    //    Console.WriteLine(ent.Name);
-            //    //}
-            //    //continue;
-
-            //    string url2 = string.Format("http://bnet.marlamin.com/tpr/wow/data/{0}/{1}/{2}", kvinstall.Value.Substring(0, 2), kvinstall.Value.Substring(2, 2), kvinstall.Value);
-
-            //    BLTEStream encFile = new BLTEStream(CDNIndexHandler.OpenFileDirect(url2), new MD5Hash());
-
-            //    EncodingHandler encoding = new EncodingHandler(new BinaryReader(encFile), null);
-
-            //    string[] files = new string[] { "WowB.exe", "WowT.exe", "Wow.exe", "WowB-64.exe", "WowT-64.exe", "Wow-64.exe", "RenderService.exe", "RenderService-64.exe",
-            //        @"World of Warcraft Public Test.app\Contents\MacOS\World of Warcraft",
-            //        @"World of Warcraft Public Test.app\Contents\MacOS\World of Warcraft 64",
-            //        @"World of Warcraft Beta.app\Contents\MacOS\World of Warcraft",
-            //        @"World of Warcraft Beta.app\Contents\MacOS\World of Warcraft 64",
-            //        @"World of Warcraft Retail.app\Contents\MacOS\World of Warcraft",
-            //        @"World of Warcraft Retail.app\Contents\MacOS\World of Warcraft 64",
-            //        @"World of Warcraft Test.app\Contents\MacOS\World of Warcraft",
-            //        @"World of Warcraft.app\Contents\MacOS\World of Warcraft"
-            //    };
-
-            //    string outFolder = "build_" + buildIndex++;
-
-            //    foreach (var file in files)
-            //    {
-            //        var entries = install.GetEntriesByName(file);
-
-            //        foreach (var entry in entries)
-            //        {
-            //            bool ok = encoding.GetEntry(entry.MD5, out var encEntry);
-
-            //            if (ok)
-            //            {
-            //                string chash = encEntry.Key.ToHexString().ToLower();
-
-            //                Console.WriteLine("http://bnet.marlamin.com/tpr/wow/data/{0}/{1}/{2} {3}", chash.Substring(0, 2), chash.Substring(2, 2), chash, file);
-
-            //                string url = string.Format("http://blzddist1-a.akamaihd.net/tpr/wow/data/{0}/{1}/{2}", chash.Substring(0, 2), chash.Substring(2, 2), chash);
-            //                //string url = string.Format("http://bnet.marlamin.com/tpr/wow/data/{0}/{1}/{2}", chash.Substring(0, 2), chash.Substring(2, 2), chash);
-
-            //                try
-            //                {
-            //                    var stream = CDNIndexHandler.OpenFileDirect(url);
-
-            //                    BLTEStream blte3 = new BLTEStream(stream, new MD5Hash());
-
-            //                    string outFile = Path.Combine(outFolder, chash + "_" + file);
-            //                    string outDir = Path.GetDirectoryName(outFile);
-
-            //                    if (!Directory.Exists(outDir))
-            //                        Directory.CreateDirectory(outDir);
-
-            //                    using (var fileStream = File.Create(outFile))
-            //                    {
-            //                        blte3.CopyTo(fileStream);
-            //                    }
-            //                }
-            //                catch(Exception exc)
-            //                {
-            //                    Console.WriteLine(exc.Message);
-            //                }
-            //            }
-            //        }
-            //    }
-            //}
-
-            //ArmadilloCrypt crypt = new ArmadilloCrypt("sc1Dev");
-            //ArmadilloCrypt crypt = new ArmadilloCrypt(new byte[] { 0xe2, 0x56, 0x27, 0xf6, 0xe6, 0xc6, 0xd6, 0x02, 0xc2, 0x86, 0x37, 0x46, 0x02, 0x72, 0xc6, 0x24 });
-            //
-            //ulong x = BitConverter.ToUInt64(crypt.Key, 0);
-            //ulong y = BitConverter.ToUInt64(crypt.Key, 8);
-
-            //var decr = crypt.DecryptFile(@"c:\Users\TOM_RUS\Downloads\e32f46c7245bfc154e43924555a5cf9f");
-            //var decr = crypt.DecryptFile(@"c:\Users\TOM_RUS\Downloads\e6185c20749d6b15dfd3aaf4110f3045");
-
-            //File.WriteAllBytes("e6185c20749d6b15dfd3aaf4110f3045_decrypted", decr);
-            //;
-            //byte[] keyBytes = new byte[16];
-
-            //ArmadilloCrypt crypt = new ArmadilloCrypt(keyBytes);
-
-            //string buildconfigfile = "9f6048f8bd01f38ec0be83f4a9fe5a10";
-
-            //byte[] data = File.ReadAllBytes(buildconfigfile);
-
-            //byte[] IV = buildconfigfile.Substring(16).ToByteArray();
-
-            //unsafe
-            //{
-            //    fixed (byte* ptr = keyBytes)
-            //    {
-            //        for (ulong i = 0; i < ulong.MaxValue; i++)
-            //        {
-            //            for (ulong j = 0; j < ulong.MaxValue; j++)
-            //            {
-            //                byte[] decrypted = crypt.DecryptFile(IV, data);
-
-            //                if (decrypted[0] == 0x23 && decrypted[1] == 0x20 && decrypted[2] == 0x42 && decrypted[3] == 0x75)
-            //                {
-            //                    Console.WriteLine("key found: {0} {1} ?", i, j);
-            //                }
-
-            //                *(ulong*)ptr = j;
-
-            //                if (j % 1000000 == 0)
-            //                    Console.WriteLine("{0}/{1}", j, ulong.MaxValue);
-            //            }
-
-            //            *(ulong*)(ptr + 8) = i;
-            //        }
-            //    }
-            //}
-
-            if (args.Length != 6)
+            rootCommand.SetHandler((ExtractMode mode, string modeParam, string destFolder, LocaleFlags locale, string product, bool online, string storagePath, bool overrideArchive) =>
             {
-                Console.WriteLine("Invalid arguments count!");
-                Console.WriteLine("Usage: CASCConsole <mode> <pattern|listfile> <destination> <localeFlags> <product> <overrideArchive>");
-                return;
-            }
+                Extract(mode, modeParam, destFolder, locale, product, online, storagePath, overrideArchive);
+            }, modeOption, modeParamOption, destOption, localeOption, productOption, onlineOption, storagePathOption, overrideArchiveOption);
+            rootCommand.Invoke(args);
+        }
 
+        private static void Extract(ExtractMode mode, string modeParam, string destFolder, LocaleFlags locale, string product, bool online, string storagePath, bool overrideArchive)
+        {
             DateTime startTime = DateTime.Now;
 
             Console.WriteLine($"Started at {startTime}");
 
             Console.WriteLine("Settings:");
-            Console.WriteLine("    WowPath: {0}", Settings.Default.StoragePath);
-            Console.WriteLine("    OnlineMode: {0}", Settings.Default.OnlineMode);
+            Console.WriteLine("  Storage Path: {0}", storagePath);
 
             Console.WriteLine("Loading...");
 
             BackgroundWorkerEx bgLoader = new BackgroundWorkerEx();
             bgLoader.ProgressChanged += BgLoader_ProgressChanged;
 
-            //CASCConfig.LoadFlags |= LoadFlags.Install;
-
-            string mode = args[0];
-            string pattern = args[1];
-            string dest = args[2];
-            LocaleFlags locale = (LocaleFlags)Enum.Parse(typeof(LocaleFlags), args[3]);
-            string product = args[4];
-            bool overrideArchive = bool.Parse(args[5]);
-
             CASCConfig.LoadFlags |= LoadFlags.Install;
 
-            CASCConfig config = Settings.Default.OnlineMode
+            CASCConfig config = online
                 ? CASCConfig.LoadOnlineStorageConfig(product, "us")
-                : CASCConfig.LoadLocalStorageConfig(Settings.Default.StoragePath, product);
+                : CASCConfig.LoadLocalStorageConfig(storagePath, product);
 
             CASCHandler cascHandler = CASCHandler.OpenStorage(config, bgLoader);
 
@@ -275,40 +67,41 @@ namespace CASCConsole
             Console.WriteLine("Loaded.");
 
             Console.WriteLine("Extract params:");
-            Console.WriteLine("    Mode: {0}", mode);
-            Console.WriteLine("    Pattern/Listfile: {0}", pattern);
-            Console.WriteLine("    Destination: {0}", dest);
-            Console.WriteLine("    LocaleFlags: {0}", locale);
-            Console.WriteLine("    Product: {0}", product);
-            Console.WriteLine("    OverrideArchive: {0}", overrideArchive);
+            Console.WriteLine("  Mode: {0}", mode);
+            Console.WriteLine("  Mode Param: {0}", modeParam);
+            Console.WriteLine("  Destination: {0}", destFolder);
+            Console.WriteLine("  LocaleFlags: {0}", locale);
+            Console.WriteLine("  Product: {0}", product);
+            Console.WriteLine("  Online: {0}", online);
+            Console.WriteLine("  OverrideArchive: {0}", overrideArchive);
 
-            if (mode == "pattern")
+            if (mode == ExtractMode.Pattern)
             {
-                Wildcard wildcard = new Wildcard(pattern, true, RegexOptions.IgnoreCase);
+                Wildcard wildcard = new Wildcard(modeParam, true, RegexOptions.IgnoreCase);
 
                 foreach (var file in CASCFolder.GetFiles(root.Entries.Select(kv => kv.Value)))
                 {
                     if (wildcard.IsMatch(file.FullName))
-                        ExtractFile(cascHandler, file.Hash, file.FullName, dest);
+                        ExtractFile(cascHandler, file.Hash, file.FullName, destFolder);
                 }
             }
-            else if (mode == "listfile")
+            else if (mode == ExtractMode.Listfile)
             {
                 if (cascHandler.Root is WowRootHandler wowRoot)
                 {
                     char[] splitChar = new char[] { ';' };
 
-                    var names = File.ReadLines(pattern).Select(s => s.Split(splitChar, 2)).Select(s => new { id = int.Parse(s[0]), name = s[1] });
+                    var names = File.ReadLines(modeParam).Select(s => s.Split(splitChar, 2)).Select(s => new { id = int.Parse(s[0]), name = s[1] });
 
                     foreach (var file in names)
-                        ExtractFile(cascHandler, wowRoot.GetHashByFileDataId(file.id), file.name, dest);
+                        ExtractFile(cascHandler, wowRoot.GetHashByFileDataId(file.id), file.name, destFolder);
                 }
                 else
                 {
-                    var names = File.ReadLines(pattern);
+                    var names = File.ReadLines(modeParam);
 
                     foreach (var file in names)
-                        ExtractFile(cascHandler, 0, file, dest);
+                        ExtractFile(cascHandler, 0, file, destFolder);
                 }
             }
 

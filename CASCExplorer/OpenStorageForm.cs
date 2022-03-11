@@ -1,6 +1,9 @@
 ﻿using CASCLib;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Collections.Specialized;
+using System.Configuration;
 using System.IO;
 using System.Windows.Forms;
 
@@ -11,18 +14,24 @@ namespace CASCExplorer
         public string StoragePath { get; private set; }
         public string Product { get; private set; }
 
-        private CASCGameType _gameType;
+        private List<TACTProduct> products = new List<TACTProduct>();
 
         public OpenStorageForm()
         {
             InitializeComponent();
-        }
 
-        private readonly Dictionary<CASCGameType, string[]> sharedInstallProducts = new Dictionary<CASCGameType, string[]>
-        {
-            [CASCGameType.WoW] = new string[] { "wow", "wowt", "wow_beta", "wowe1", "wow_classic", "wow_classic_beta", "wow_classic_ptr", "wow_classic_era", "wow_classic_era_beta", "wow_classic_era_ptr" },
-            [CASCGameType.WC3] = new string[] { "w3", "w3t" },
-        };
+            NameValueCollection onlineStorageList = (NameValueCollection)ConfigurationManager.GetSection("OnlineStorageList");
+
+            if (onlineStorageList != null)
+            {
+                foreach (string game in onlineStorageList)
+                {
+                    products.Add(new TACTProduct { Id = game, Name = onlineStorageList[game] });
+                }
+            }
+
+            productComboBox.DataSource = products;
+        }
 
         private void Button1_Click(object sender, EventArgs e)
         {
@@ -36,38 +45,47 @@ namespace CASCExplorer
 
             if (!File.Exists(Path.Combine(path, ".build.info")))
             {
-                MessageBox.Show("Invalid storage folder selected!", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                MessageBox.Show("Selected folder isn't valid CASC storage!", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
-
-            _gameType = CASCGame.DetectLocalGame(path);
-
-            if (_gameType == CASCGameType.Unknown)
-                return;
 
             textBox1.Text = path;
-
-            productComboBox.Items.Clear();
-            productComboBox.Enabled = sharedInstallProducts.TryGetValue(_gameType, out var products);
-            if (productComboBox.Enabled)
-            {
-                productComboBox.Items.AddRange(products);
-            }
         }
 
         private void Button2_Click(object sender, EventArgs e)
         {
-            if (sharedInstallProducts.ContainsKey(_gameType) && productComboBox.SelectedIndex == -1)
+            ObservableCollection<int> test;
+
+            if (productComboBox.SelectedIndex == -1)
             {
                 MessageBox.Show("Must select type of game product!", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 return;
             }
 
+            TACTProduct selectedProduct = productComboBox.SelectedItem as TACTProduct;
+            try
+            {
+                CASCConfig.LoadLocalStorageConfig(textBox1.Text, selectedProduct.Id);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message, "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
             StoragePath = textBox1.Text;
-            Product = (string)productComboBox.SelectedItem;
+            Product = selectedProduct.Id;
 
             DialogResult = DialogResult.OK;
             Close();
+        }
+
+        class TACTProduct
+        {
+            public string Id { get; set; }
+            public string Name { get; set; }
+
+            public override string ToString() => $"{Name} ({Id})";
         }
     }
 }

@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
-    <_LastSelectedProfileId>F:\Dev\WoW\tools\CASCExplorer\CASCConsole\Properties\PublishProfiles\FolderProfile.pubxml</_LastSelectedProfileId>
-    <ActiveDebugFramework>netcoreapp3.1</ActiveDebugFramework>
+    <_LastSelectedProfileId>E:\Dev\WoW\tools\CASCExplorer\CASCConsole\Properties\PublishProfiles\publish_win.pubxml</_LastSelectedProfileId>
+    <ActiveDebugFramework>net48</ActiveDebugFramework>
   </PropertyGroup>
 </Project>

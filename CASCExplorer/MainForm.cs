@@ -181,6 +181,31 @@ namespace CASCExplorer
 
         private void listView1_SelectedIndexChanged(object sender, EventArgs e)
         {
+            CASCHandler casc = viewHelper.CASC;
+
+            if (casc.Root is WowRootHandler wowRoot)
+            {
+                bool fidSet = false;
+
+                if (fileList.HasSingleSelection)
+                {
+                    CASCFile selectedFile = viewHelper.DisplayedEntries[fileList.SelectedIndex] as CASCFile;
+
+                    if (selectedFile != null)
+                    {
+                        int fid = wowRoot.GetFileDataIdByHash(selectedFile.Hash);
+                        if (fid != 0)
+                        {
+                            statusInfo.Text = $"File: {selectedFile.Name}, FiledataId: {fid}";
+                            fidSet = true;
+                        }
+                    }
+                }
+
+                if (!fidSet)
+                    statusInfo.Text = "N/A";
+            }
+
             viewHelper.PreviewFile(fileList);
         }
 
