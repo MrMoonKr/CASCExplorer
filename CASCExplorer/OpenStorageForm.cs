@@ -1,10 +1,8 @@
 ﻿using CASCLib;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Configuration;
-using System.IO;
 using System.Windows.Forms;
 
 namespace CASCExplorer
@@ -43,19 +41,11 @@ namespace CASCExplorer
 
             string path = storageFolderBrowserDialog.SelectedPath;
 
-            if (!File.Exists(Path.Combine(path, ".build.info")))
-            {
-                MessageBox.Show("Selected folder isn't valid CASC storage!", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                return;
-            }
-
             textBox1.Text = path;
         }
 
         private void Button2_Click(object sender, EventArgs e)
         {
-            ObservableCollection<int> test;
-
             if (productComboBox.SelectedIndex == -1)
             {
                 MessageBox.Show("Must select type of game product!", "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error);

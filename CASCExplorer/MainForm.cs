@@ -117,7 +117,7 @@ namespace CASCExplorer
             extractInstallFilesToolStripMenuItem.Enabled = true;
             extractCASCSystemFilesToolStripMenuItem.Enabled = true;
             scanFilesToolStripMenuItem.Enabled = isWoW;
-            analyseUnknownFilesToolStripMenuItem.Enabled = isWoW || gameType == CASCGameType.Overwatch;
+            analyseUnknownFilesToolStripMenuItem.Enabled = isWoW;
             addFileDataIDToSoundFilesToolStripMenuItem.Enabled = isWoW;
             analyzeSoundFilesToolStripMenuItem.Enabled = isWoW;
             localeFlagsToolStripMenuItem.Enabled = CASCGame.SupportsLocaleSelection(gameType);

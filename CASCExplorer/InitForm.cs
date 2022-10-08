@@ -60,7 +60,6 @@ namespace CASCExplorer
 
             var fldr = casc.Root.SetFlags(Settings.Default.LocaleFlags, Settings.Default.OverrideArchive);
             casc.Root.MergeInstall(casc.Install);
-
             GC.Collect();
 
             e.Result = new object[] { casc, fldr };

@@ -1,10 +1,9 @@
-﻿using System;
-using System.Windows.Forms;
-using System.IO;
-using Be.Windows.Forms;
-using System.ComponentModel.Composition;
+﻿using Be.Windows.Forms;
 using CASCExplorer.ViewPlugin;
-using System.Text;
+using System;
+using System.ComponentModel.Composition;
+using System.IO;
+using System.Windows.Forms;
 
 namespace CASCExplorer.DefaultViews.Previews
 {
