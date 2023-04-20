@@ -25,7 +25,7 @@ namespace CASCConsole
             var destOption = new Option<string>(new[] { "-d", "--dest" }, "Destination folder path") { IsRequired = true };
             var localeOption = new Option<LocaleFlags>(new[] { "-l", "--locale" }, "Product locale") { IsRequired = true };
             var productOption = new Option<string>(new[] { "-p", "--product" }, "Product uid") { IsRequired = true };
-            var onlineOption = new Option<bool>(new[] { "-o", "--online" }, () => true, "Override archive");
+            var onlineOption = new Option<bool>(new[] { "-o", "--online" }, () => false, "Online extraction mode");
             var storagePathOption = new Option<string>(new[] { "-s", "--storage" }, () => "", "Local game storage folder");
             var overrideArchiveOption = new Option<bool>(new[] { "-a", "--archive" }, () => false, "Override archive");
 
@@ -79,7 +79,7 @@ namespace CASCConsole
             {
                 Wildcard wildcard = new Wildcard(modeParam, true, RegexOptions.IgnoreCase);
 
-                foreach (var file in CASCFolder.GetFiles(root.Entries.Select(kv => kv.Value)))
+                foreach (var file in CASCFolder.GetFiles(root.Folders.Select(kv => kv.Value as ICASCEntry).Concat(root.Files.Select(kv => kv.Value))))
                 {
                     if (wildcard.IsMatch(file.FullName))
                         ExtractFile(cascHandler, file.Hash, file.FullName, destFolder);

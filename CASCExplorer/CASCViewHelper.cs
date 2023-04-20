@@ -131,173 +131,181 @@ namespace CASCExplorer
             {
                 FileScanner scanner = new FileScanner(_casc, _root);
 
-                Dictionary<int, List<string>> idToName = new Dictionary<int, List<string>>();
-
-                if (_casc.Config.GameType == CASCGameType.WoW && AnalyzeSoundFiles)
+                if (_casc.Config.GameType == CASCGameType.WoW)
                 {
-                    if (_casc.FileExists("DBFilesClient\\SoundEntries.db2"))
+                    Dictionary<int, List<string>> idToName = new Dictionary<int, List<string>>();
+
+                    if (AnalyzeSoundFiles)
                     {
-                        using (Stream stream = _casc.OpenFile("DBFilesClient\\SoundEntries.db2"))
+                        if (_casc.FileExists("DBFilesClient\\SoundEntries.db2"))
                         {
-                            WDB2Reader se = new WDB2Reader(stream);
-
-                            foreach (var row in se)
+                            using (Stream stream = _casc.OpenFile("DBFilesClient\\SoundEntries.db2"))
                             {
-                                string name = row.Value.GetField<string>(2);
+                                WDB2Reader se = new WDB2Reader(stream);
 
-                                int type = row.Value.GetField<int>(1);
-
-                                bool many = row.Value.GetField<int>(4) > 0;
-
-                                for (int i = 3; i < 23; i++)
+                                foreach (var row in se)
                                 {
-                                    int id = row.Value.GetField<int>(i);
+                                    string name = row.Value.GetField<string>(2);
 
-                                    if (!idToName.ContainsKey(id))
-                                        idToName[id] = new List<string>();
+                                    int type = row.Value.GetField<int>(1);
 
-                                    idToName[id].Add("unknown\\sound\\" + name + (many ? "_" + (i - 2).ToString("D2") : "") + (type == 28 ? ".mp3" : ".ogg"));
+                                    bool many = row.Value.GetField<int>(4) > 0;
+
+                                    for (int i = 3; i < 23; i++)
+                                    {
+                                        int id = row.Value.GetField<int>(i);
+
+                                        if (!idToName.ContainsKey(id))
+                                            idToName[id] = new List<string>();
+
+                                        idToName[id].Add("unknown\\sound\\" + name + (many ? "_" + (i - 2).ToString("D2") : "") + (type == 28 ? ".mp3" : ".ogg"));
+                                    }
                                 }
                             }
                         }
-                    }
 
-                    if (_casc.FileExists(1237434/*"DBFilesClient\\SoundKit.db2"*/) && _casc.FileExists(1237435/*"DBFilesClient\\SoundKitEntry.db2"*/) && _casc.FileExists(1665033/*"DBFilesClient\\SoundKitName.db2"*/))
-                    {
-                        using (Stream skStream = _casc.OpenFile(1237434))
-                        using (Stream skeStream = _casc.OpenFile(1237435))
-                        using (Stream sknStream = _casc.OpenFile(1665033))
+                        if (_casc.FileExists(1237434/*"DBFilesClient\\SoundKit.db2"*/) && _casc.FileExists(1237435/*"DBFilesClient\\SoundKitEntry.db2"*/) && _casc.FileExists(1665033/*"DBFilesClient\\SoundKitName.db2"*/))
                         {
-                            Func<ulong, bool> keyCheckFunc = x => KeyService.GetKey(x) != null;
-                            WDC3Reader sk = new WDC3Reader(skStream, keyCheckFunc);
-                            WDC3Reader ske = new WDC3Reader(skeStream, keyCheckFunc);
-                            WDC3Reader skn = new WDC3Reader(sknStream, keyCheckFunc);
-
-                            Dictionary<int, List<int>> lookup = new Dictionary<int, List<int>>();
-
-                            foreach (var row in ske)
+                            using (Stream skStream = _casc.OpenFile(1237434))
+                            using (Stream skeStream = _casc.OpenFile(1237435))
+                            using (Stream sknStream = _casc.OpenFile(1665033))
                             {
-                                int soundKitId = row.Value.GetField<int>(0);
+                                Func<ulong, bool> keyCheckFunc = x => KeyService.GetKey(x) != null;
+                                WDC3Reader sk = new WDC3Reader(skStream, keyCheckFunc);
+                                WDC3Reader ske = new WDC3Reader(skeStream, keyCheckFunc);
+                                WDC3Reader skn = new WDC3Reader(sknStream, keyCheckFunc);
 
-                                if (!lookup.ContainsKey(soundKitId))
-                                    lookup[soundKitId] = new List<int>();
+                                Dictionary<int, List<int>> lookup = new Dictionary<int, List<int>>();
 
-                                lookup[soundKitId].Add(row.Value.GetField<int>(1));
-                            }
-
-                            foreach (var row in sk)
-                            {
-                                WDC3Row sknRow = skn.GetRow(row.Key);
-
-                                if (sknRow != null)
+                                foreach (var row in ske)
                                 {
-                                    string name = sknRow.GetField<string>(0).Replace(':', '_').Replace("\"", "");
+                                    int soundKitId = row.Value.GetField<int>(0);
 
-                                    int type = row.Value.GetField<byte>(6);
+                                    if (!lookup.ContainsKey(soundKitId))
+                                        lookup[soundKitId] = new List<int>();
 
-                                    if (!lookup.TryGetValue(row.Key, out List<int> ske_entries))
-                                        continue;
+                                    lookup[soundKitId].Add(row.Value.GetField<int>(1));
+                                }
 
-                                    bool many = ske_entries.Count > 1;
+                                foreach (var row in sk)
+                                {
+                                    WDC3Row sknRow = skn.GetRow(row.Key);
 
-                                    int i = 0;
-
-                                    foreach (var fid in ske_entries)
+                                    if (sknRow != null)
                                     {
-                                        if (!idToName.ContainsKey(fid))
-                                            idToName[fid] = new List<string>();
+                                        string name = sknRow.GetField<string>(0).Replace(':', '_').Replace("\"", "");
 
-                                        if (AddFileDataIdToSoundFiles)
-                                            idToName[fid].Add("unknown\\sound\\" + name + (many ? "_" + (i + 1).ToString("D2") : "") + "_" + fid + (type == 28 ? ".mp3" : ".ogg"));
-                                        else
-                                            idToName[fid].Add("unknown\\sound\\" + name + (many ? "_" + (i + 1).ToString("D2") : "") + (type == 28 ? ".mp3" : ".ogg"));
+                                        int type = row.Value.GetField<byte>(6);
 
-                                        i++;
+                                        if (!lookup.TryGetValue(row.Key, out List<int> ske_entries))
+                                            continue;
+
+                                        bool many = ske_entries.Count > 1;
+
+                                        int i = 0;
+
+                                        foreach (var fid in ske_entries)
+                                        {
+                                            if (!idToName.ContainsKey(fid))
+                                                idToName[fid] = new List<string>();
+
+                                            if (AddFileDataIdToSoundFiles)
+                                                idToName[fid].Add("unknown\\sound\\" + name + (many ? "_" + (i + 1).ToString("D2") : "") + "_" + fid + (type == 28 ? ".mp3" : ".ogg"));
+                                            else
+                                                idToName[fid].Add("unknown\\sound\\" + name + (many ? "_" + (i + 1).ToString("D2") : "") + (type == 28 ? ".mp3" : ".ogg"));
+
+                                            i++;
+                                        }
                                     }
                                 }
                             }
                         }
                     }
-                }
 
-                CASCFolder unknownFolder = _root.GetEntry("unknown") as CASCFolder;
+                    CASCFolder unknownFolder = _root.GetFolder("unknown");
 
-                if (unknownFolder == null)
-                    return;
-
-                foreach (var kv in idToName)
-                {
-                    foreach (var fn in kv.Value)
-                        Logger.WriteLine($"{kv.Key};{fn}");
-                }
-
-                IEnumerable<CASCFile> files = CASCFolder.GetFiles(unknownFolder.Entries.Select(kv => kv.Value), null, true).ToList();
-                int numTotal = files.Count();
-                int numDone = 0;
-
-                WowRootHandler wowRoot = _casc.Root as WowRootHandler;
-
-                Jenkins96 Hasher = new Jenkins96();
-                char[] PathDelimiters = new char[] { '/', '\\' };
-
-                foreach (var unknownEntry in files)
-                {
-                    CASCFile unknownFile = unknownEntry as CASCFile;
-
-                    if (idToName.TryGetValue(wowRoot.GetFileDataIdByHash(unknownFile.Hash), out List<string> name))
+                    if (unknownFolder != null)
                     {
-                        if (name.Count == 1)
-                            unknownFile.FullName = name[0];
-                        else
+                        foreach (var kv in idToName)
                         {
-                            unknownFolder.Entries.Remove(unknownFile.Name);
-
-                            foreach (var file in name)
-                            {
-                                //Logger.WriteLine(file);
-
-                                string[] parts = file.Split(PathDelimiters);
-
-                                string entryName = parts[parts.Length - 1];
-
-                                ulong filehash = unknownFile.Hash;
-
-                                CASCFile entry = new CASCFile(filehash, file);
-                                CASCFile.Files[filehash] = entry;
-
-                                unknownFolder.Entries[entryName] = entry;
-                            }
+                            foreach (var fn in kv.Value)
+                                Logger.WriteLine($"{kv.Key};{fn}");
                         }
-                    }
-                    else
-                    {
-                        string ext = scanner.GetFileExtension(unknownFile);
-                        unknownFile.FullName += ext;
 
-                        if (ext == ".m2")
+                        IEnumerable<CASCFile> files = CASCFolder.GetFiles(unknownFolder.Folders.Select(kv => kv.Value as ICASCEntry)
+                            .Concat(unknownFolder.Files.Select(kv => kv.Value)), null, true)
+                            .ToList();
+
+                        int numTotal = files.Count();
+                        int numDone = 0;
+
+                        WowRootHandler wowRoot = _casc.Root as WowRootHandler;
+
+                        if (wowRoot != null)
                         {
-                            using (var m2file = _casc.OpenFile(unknownFile.Hash))
-                            using (var br = new BinaryReader(m2file))
-                            {
-                                m2file.Position = 0x14;
-                                int nameOffs = br.ReadInt32();
+                            char[] PathDelimiters = new char[] { '/', '\\' };
 
-                                string m2name;
-                                if (nameOffs == 0)
-                                    m2name = wowRoot.GetFileDataIdByHash(unknownFile.Hash).ToString();
+                            foreach (var unknownEntry in files)
+                            {
+                                CASCFile unknownFile = unknownEntry;
+
+                                if (idToName.TryGetValue(wowRoot.GetFileDataIdByHash(unknownFile.Hash), out List<string> name))
+                                {
+                                    if (name.Count == 1)
+                                        unknownFile.FullName = name[0];
+                                    else
+                                    {
+                                        unknownFolder.Files.Remove(unknownFile.Name);
+
+                                        foreach (var file in name)
+                                        {
+                                            //Logger.WriteLine(file);
+
+                                            string[] parts = file.Split(PathDelimiters);
+
+                                            string entryName = parts[parts.Length - 1];
+
+                                            ulong filehash = unknownFile.Hash;
+
+                                            CASCFile entry = new CASCFile(filehash, file);
+                                            CASCFile.Files[filehash] = entry;
+
+                                            unknownFolder.Files[entryName] = entry;
+                                        }
+                                    }
+                                }
                                 else
                                 {
-                                    m2file.Position = nameOffs + 8; // + sizeof(MD21)
-                                    m2name = br.ReadCString();
-                                }
-                                unknownFile.FullName = "unknown\\" + m2name + ".m2";
+                                    string ext = scanner.GetFileExtension(unknownFile);
+                                    unknownFile.FullName += ext;
 
-                                Logger.WriteLine($"{wowRoot.GetFileDataIdByHash(unknownFile.Hash)};{unknownFile.FullName}");
+                                    if (ext == ".m2")
+                                    {
+                                        using (var m2file = _casc.OpenFile(unknownFile.Hash))
+                                        using (var br = new BinaryReader(m2file))
+                                        {
+                                            m2file.Position = 0x14;
+                                            int nameOffs = br.ReadInt32();
+
+                                            string m2name;
+                                            if (nameOffs == 0)
+                                                m2name = wowRoot.GetFileDataIdByHash(unknownFile.Hash).ToString();
+                                            else
+                                            {
+                                                m2file.Position = nameOffs + 8; // + sizeof(MD21)
+                                                m2name = br.ReadCString();
+                                            }
+                                            unknownFile.FullName = "unknown\\" + m2name + ".m2";
+
+                                            Logger.WriteLine($"{wowRoot.GetFileDataIdByHash(unknownFile.Hash)};{unknownFile.FullName}");
+                                        }
+                                    }
+                                }
+
+                                progress.Report((int)(++numDone / (float)numTotal * 100));
                             }
                         }
                     }
-
-                    progress.Report((int)(++numDone / (float)numTotal * 100));
                 }
 
                 _casc.Root.Dump(_casc.Encoding);
@@ -324,8 +332,8 @@ namespace CASCExplorer
             Wildcard wildcard = new Wildcard(filter, false, RegexOptions.IgnoreCase);
 
             // Sort
-            _displayedEntries = baseEntry.Entries.Where(v => v.Value is CASCFolder || (v.Value is CASCFile && wildcard.IsMatch(v.Value.Name))).
-                OrderBy(v => v.Value, Sorter).Select(kv => kv.Value).ToList();
+            _displayedEntries = baseEntry.Folders.Select(kv => kv.Value as ICASCEntry).Concat(baseEntry.Files.Select(kv => kv.Value).Where(file => wildcard.IsMatch(file.Name))).
+                OrderBy(v => v, Sorter).ToList();
 
             _currentFolder = baseEntry;
 
@@ -351,18 +359,18 @@ namespace CASCExplorer
                 // remove dummy node
                 node.Nodes.Clear();
 
-                var orderedEntries = baseEntry.Entries.OrderBy(v => v.Value.Name);
+                var orderedEntries = baseEntry.Folders.OrderBy(v => v.Value.Name);
 
                 // Create nodes dynamically
                 foreach (var it in orderedEntries)
                 {
-                    if (it.Value is CASCFolder entry && node.Nodes[entry.Name] == null)
+                    if (node.Nodes[it.Value.Name] == null)
                     {
-                        TreeNode newNode = node.Nodes.Add(entry.Name);
-                        newNode.Tag = entry;
-                        newNode.Name = entry.Name;
+                        TreeNode newNode = node.Nodes.Add(it.Value.Name);
+                        newNode.Tag = it.Value;
+                        newNode.Name = it.Value.Name;
 
-                        if (entry.Entries.Count(v => v.Value is CASCFolder) > 0)
+                        if (it.Value.Folders.Count > 0)
                             newNode.Nodes.Add(new TreeNode() { Name = "tempnode" }); // add dummy node
                     }
                 }

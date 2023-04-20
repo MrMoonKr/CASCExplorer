@@ -147,12 +147,13 @@ namespace CASCExplorer
 
         private void ScanFolder(CASCFolder folder)
         {
-            foreach (var entry in folder.Entries)
+            foreach (var entry in folder.Files)
             {
-                if (entry.Value is CASCFile file)
-                    ScanFile(file);
-                else
-                    ScanFolder(entry.Value as CASCFolder);
+                ScanFile(entry.Value);
+            }
+            foreach (var entry in folder.Folders)
+            {
+                ScanFolder(entry.Value);
             }
         }
 

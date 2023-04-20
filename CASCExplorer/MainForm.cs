@@ -113,11 +113,12 @@ namespace CASCExplorer
             CASCGameType gameType = cfg.GameType;
 
             bool isWoW = gameType == CASCGameType.WoW;
+            bool isD4 = gameType == CASCGameType.D4;
 
             extractInstallFilesToolStripMenuItem.Enabled = true;
             extractCASCSystemFilesToolStripMenuItem.Enabled = true;
             scanFilesToolStripMenuItem.Enabled = isWoW;
-            analyseUnknownFilesToolStripMenuItem.Enabled = isWoW;
+            analyseUnknownFilesToolStripMenuItem.Enabled = isWoW || isD4;
             addFileDataIDToSoundFilesToolStripMenuItem.Enabled = isWoW;
             analyzeSoundFilesToolStripMenuItem.Enabled = isWoW;
             localeFlagsToolStripMenuItem.Enabled = CASCGame.SupportsLocaleSelection(gameType);
