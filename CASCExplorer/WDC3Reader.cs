@@ -107,6 +107,7 @@ namespace CASCLib
     {
         private const int HeaderSize = 72;
         private const uint WDC3FmtSig = 0x33434457; // WDC3
+        private const uint WDC4FmtSig = 0x34434457; // WDC4
         private Func<ulong, bool> hasTactKeyFunc;
 
         public WDC3Reader(string dbcFile, Func<ulong, bool> hasTactKey = null) : this(new FileStream(dbcFile, FileMode.Open), hasTactKey) { }
@@ -125,7 +126,7 @@ namespace CASCLib
 
                 uint magic = reader.ReadUInt32();
 
-                if (magic != WDC3FmtSig)
+                if (magic != WDC3FmtSig && magic != WDC4FmtSig)
                     throw new InvalidDataException(String.Format("WDC3 file is corrupted!"));
 
                 RecordsCount = reader.ReadInt32();

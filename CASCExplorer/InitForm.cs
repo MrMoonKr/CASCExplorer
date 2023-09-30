@@ -29,6 +29,7 @@ namespace CASCExplorer
         {
             (bool online, string path, string product) = ((bool online, string path, string product))e.Argument;
             CASCConfig.LoadFlags |= LoadFlags.Install;
+            CASCConfig.LoadFlags |= LoadFlags.FileIndex;
             CASCConfig config = _onlineMode ? CASCConfig.LoadOnlineStorageConfig(product, "eu") : CASCConfig.LoadLocalStorageConfig(path, product);
 
             if (_onlineMode)
