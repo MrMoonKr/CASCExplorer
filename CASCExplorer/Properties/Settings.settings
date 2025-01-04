@@ -17,5 +17,8 @@
     <Setting Name="ListFilePath" Type="System.String" Scope="User">
       <Value Profile="(Default)">listfile.csv</Value>
     </Setting>
+    <Setting Name="PreferHighResTextures" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

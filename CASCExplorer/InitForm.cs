@@ -50,7 +50,7 @@ namespace CASCExplorer
 
             var casc = CASCHandler.OpenStorage(config, backgroundWorker1);
 
-            casc.Root.SetFlags(Settings.Default.LocaleFlags, Settings.Default.OverrideArchive, false);
+            casc.Root.SetFlags(Settings.Default.LocaleFlags, Settings.Default.OverrideArchive, Settings.Default.PreferHighResTextures, false);
 
             LoadFileDataComplete(casc);
 
@@ -59,7 +59,7 @@ namespace CASCExplorer
                 casc.Root.LoadListFile(Settings.Default.ListFilePath, backgroundWorker1);
             }
 
-            var fldr = casc.Root.SetFlags(Settings.Default.LocaleFlags, Settings.Default.OverrideArchive);
+            var fldr = casc.Root.SetFlags(Settings.Default.LocaleFlags, Settings.Default.OverrideArchive, Settings.Default.PreferHighResTextures);
             casc.Root.MergeInstall(casc.Install);
             GC.Collect();
 

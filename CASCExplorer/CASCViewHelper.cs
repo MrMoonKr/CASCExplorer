@@ -102,20 +102,24 @@ namespace CASCExplorer
 
             IProgress<int> progress = new Progress<int>(progressCallback);
 
-            await Task.Run(() =>
-            {
-                var installFiles = _casc.Install.GetEntriesByTag("Windows");
-                var build = _casc.Config.BuildName;
+            await Task.Run(() => {
+                string[] platforms = ["Windows", "OSX"];
 
-                int numFiles = installFiles.Count();
-                int numDone = 0;
-
-                foreach (var file in installFiles)
+                foreach (string platform in platforms)
                 {
-                    if (_casc.Encoding.GetEntry(file.MD5, out EncodingEntry enc))
-                        _casc.SaveFileTo(enc.Keys[0], Path.Combine("data", build, "install_files"), file.Name);
+                    var installFiles = _casc.Install.GetEntriesByTags(platform, "x86_64", "US");
+                    var build = _casc.Config.BuildName;
 
-                    progress.Report((int)(++numDone / (float)numFiles * 100));
+                    int numFiles = installFiles.Count();
+                    int numDone = 0;
+
+                    foreach (var file in installFiles)
+                    {
+                        if (_casc.Encoding.GetEntry(file.MD5, out EncodingEntry enc))
+                            _casc.SaveFileTo(enc.Keys[0], Path.Combine("data", build, $"{platform}_install_files"), file.Name);
+
+                        progress.Report((int)(++numDone / (float)numFiles * 100));
+                    }
                 }
             });
         }
@@ -408,22 +412,23 @@ namespace CASCExplorer
 
             Settings.Default.LocaleFlags = (LocaleFlags)Enum.Parse(typeof(LocaleFlags), locale);
 
-            _root = _casc.Root.SetFlags(Settings.Default.LocaleFlags, Settings.Default.OverrideArchive);
+            _root = _casc.Root.SetFlags(Settings.Default.LocaleFlags, Settings.Default.OverrideArchive, Settings.Default.PreferHighResTextures);
             _casc.Root.MergeInstall(_casc.Install);
 
             OnStorageChanged?.Invoke();
         }
 
-        public void SetOverrideArchive(bool set)
+        public void SetOverrideArchive(bool overrideArchive, bool preferHighResTextures)
         {
             if (_casc == null)
                 return;
 
             OnCleanup?.Invoke();
 
-            Settings.Default.OverrideArchive = set;
+            Settings.Default.OverrideArchive = overrideArchive;
+            Settings.Default.PreferHighResTextures = preferHighResTextures;
 
-            _root = _casc.Root.SetFlags(Settings.Default.LocaleFlags, Settings.Default.OverrideArchive);
+            _root = _casc.Root.SetFlags(Settings.Default.LocaleFlags, Settings.Default.OverrideArchive, Settings.Default.PreferHighResTextures);
             _casc.Root.MergeInstall(_casc.Install);
 
             OnStorageChanged?.Invoke();

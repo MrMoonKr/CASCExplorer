@@ -5,7 +5,9 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Configuration;
 using System.Drawing;
+using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
 namespace CASCExplorer
@@ -83,7 +85,26 @@ namespace CASCExplorer
             }
 
             useLVToolStripMenuItem.Checked = Settings.Default.OverrideArchive;
+            useHighResTexturesToolStripMenuItem.Checked = Settings.Default.PreferHighResTextures;
             tsmShowPreview.Checked = Settings.Default.PreviewVisible;
+
+            var args = Environment.GetCommandLineArgs();
+
+            if (args.Length > 2)
+            {
+                for (int i = 1; i < args.Length - 1; i++)
+                {
+                    if (args[i] == "-bco" && File.Exists(args[i + 1]))
+                        CASCConfig.BuildConfigOverride = args[i + 1];
+                    else if (args[i] == "-bcko" && Regex.IsMatch(args[i + 1], "^[a-fA-F0-9]{32}$"))
+                        CASCConfig.BuildConfigKeyOverride = args[i + 1];
+
+                    if (args[i] == "-cco" && File.Exists(args[i + 1]))
+                        CASCConfig.CDNConfigOverride = args[i + 1];
+                    else if (args[i] == "-ccko" && Regex.IsMatch(args[i + 1], "^[a-fA-F0-9]{32}$"))
+                        CASCConfig.CDNConfigKeyOverride = args[i + 1];
+                }
+            }
         }
 
         private void ViewHelper_OnStorageChanged()
@@ -123,6 +144,7 @@ namespace CASCExplorer
             analyzeSoundFilesToolStripMenuItem.Enabled = isWoW;
             localeFlagsToolStripMenuItem.Enabled = CASCGame.SupportsLocaleSelection(gameType);
             useLVToolStripMenuItem.Enabled = isWoW;
+            useHighResTexturesToolStripMenuItem.Enabled = isWoW;
             exportListfileToolStripMenuItem.Enabled = true;
 
             CASCFolder root = viewHelper.Root;
@@ -351,11 +373,18 @@ namespace CASCExplorer
             viewHelper.GetSize(fileList);
         }
 
-        private void contentFlagsToolStripMenuItem_Click(object sender, EventArgs e)
+        private void useLVToolStripMenuItem_Click(object sender, EventArgs e)
         {
             useLVToolStripMenuItem.Checked = !useLVToolStripMenuItem.Checked;
 
-            viewHelper.SetOverrideArchive(useLVToolStripMenuItem.Checked);
+            viewHelper.SetOverrideArchive(useLVToolStripMenuItem.Checked, useHighResTexturesToolStripMenuItem.Checked);
+        }
+
+        private void useHighResTexturesToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            useHighResTexturesToolStripMenuItem.Checked = !useHighResTexturesToolStripMenuItem.Checked;
+
+            viewHelper.SetOverrideArchive(useLVToolStripMenuItem.Checked, useHighResTexturesToolStripMenuItem.Checked);
         }
 
         private void Cleanup()
@@ -378,6 +407,7 @@ namespace CASCExplorer
             analyseUnknownFilesToolStripMenuItem.Enabled = false;
             localeFlagsToolStripMenuItem.Enabled = false;
             useLVToolStripMenuItem.Enabled = false;
+            useHighResTexturesToolStripMenuItem.Enabled = false;
             exportListfileToolStripMenuItem.Enabled = false;
             statusLabel.Text = "Ready.";
             statusProgress.Visible = false;
