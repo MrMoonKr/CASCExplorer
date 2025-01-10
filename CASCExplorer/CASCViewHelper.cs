@@ -691,6 +691,21 @@ namespace CASCExplorer
 
             //if (_casc.Encoding.GetEntry(_casc.Config.PartialPriorityMD5, out enc))
             //    _casc.SaveFileTo(enc.Key, ".", "partial-priority");
+
+            if (_casc.Config.IsVfsRoot )
+            {
+                _casc.SaveFileTo(_casc.Config.VfsRootEKey, ".", "vfs-root");
+
+                var config = _casc.Config;
+                var VfsRootList = config.VfsRootList;
+
+                int i = 0;
+                foreach (var vfsRoot in VfsRootList)
+                {
+                    //VfsRootSet.Add(vfsRoot.EKey);
+                    _casc.SaveFileTo(vfsRoot.EKey, ".", "vfs-" + (++i) );
+                }
+            }
         }
     }
 }
